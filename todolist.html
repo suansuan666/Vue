@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <style>
+    .selected{
+        background-color: orange;
+    }
+    .form-inline{
+        margin:10px;
+    }
+    </style>
+</head>
+<body>
+    <div id="app" class="text-center">
+        <h1>todoList</h1>
+        <hr>
+        <form class="form-inline" @submit.prevent>
+                <div class="form-group">
+                  <input  v-model="keyword" type="text" class="form-control" id="exampleInputName2" placeholder="">
+                </div>
+                <button @click="search()" type="submit" class="btn btn-default glyphicon glyphicon-search"></button>
+        </form>
+
+        <form class="form-inline" @submit.prevent>
+                <div class="form-group">
+                  <label for="exampleInputName2">商品名称</label>
+                  <input v-model="productName" type="text" class="form-control" id="exampleInputName2" placeholder="">
+                </div>
+                <div class="form-group">
+                  <label for="exampleInputEmail2">商品价格</label>
+                  <input v-model.number="productPrice" type="email" class="form-control" id="exampleInputEmail2" placeholder="">
+                </div>
+                <button @click="add()" type="submit" class="btn btn-default glyphicon glyphicon-plus"></button>
+        </form>
+
+        <table class="table table-bordered"> 
+            <thead>
+                <tr class="warning">
+                    <td>选择</td>
+                    <td>商品名称</td>
+                    <td>商品价格</td>
+                    <td>删除</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr  @click="select(item)"  v-for="(item,index) in productList" :key="index" :class="item.isSelected ?'selected':''" >
+                    <td><input type="checkbox" v-model="checkedList" :value="index"></td>
+                    <td>{{item.name}}</td>
+                    <td>{{item.price}}</td>
+                    <td><button type="button" class="btn btn-warning glyphicon glyphicon-remove btn-xs" @click="del(index)"></button>
+                    </td>
+                </tr>
+                <tr>
+                    <td><button type="button" class="btn btn-danger" @click="delCheck()">删除选中</button></td>
+                    <td colspan="3">总价是：{{total}}元</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script src="vue.js"></script>
+    <script>
+    new Vue({
+        el:"#app",
+        data:{
+            productList:[
+                {
+                    name:"衣服",
+                    price:123,
+                    isSelected:false
+                },
+                {
+                    name:"裙子",
+                    price:456,
+                    isSelected:false
+                },
+                {
+                    name:"手机",
+                    price:5000,
+                    isSelected:false
+                }
+            ],
+            checkedList:[],
+            productName:"",
+            productPrice:"",
+            keyword:""
+
+        },
+        methods:{
+            select(item){
+                item.isSelected=! item.isSelected
+            },
+            del(index){
+                this.productList.splice(index,1)
+            },
+            delCheck(){
+                this.productList=this.productList.filter((elem,index)=>{    //双向数据绑定
+                    if(!this.checkedList.includes(index)){
+                        return elem;
+                    }
+                });
+                this.checkedList=[] ; //清空checkedList，因为之前的判断语句只是进行判断了，checkedList里还有数组，如果不清空，则会出现CheckBox的标还会顺延
+            },
+            add(){
+                this.productList.push({
+                    name:this.productName,
+                    price:this.productPrice,
+                    isSelected:false
+                });
+                this.productName="";
+                this.productPrice="";
+            },
+            search(){
+                this.productList=this.productList.filter((elem,index)=>{
+                    if(elem.name.includes(this.keyword)){
+                        return elem;
+                    }    
+                })
+            }
+        },
+        computed:{      //computed会随着数据的改变而改变
+            total(){
+                let sum=0;
+                this.productList.filter((elem,index)=>{
+                    if(elem.isSelected){
+                        sum+=elem.price;
+                    }
+                })
+                return sum;
+            }
+        }
+    })
+    </script>
+</body>
+</html>
